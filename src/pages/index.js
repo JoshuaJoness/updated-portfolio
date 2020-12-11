@@ -1,8 +1,24 @@
 import React, { useState, useRef } from "react"
-import { Canvas, useFrame } from 'react-three-fiber'
-import { OrbitControls, Stars } from 'drei'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Canvas, useFrame, extend, useThree } from 'react-three-fiber'
+import { Stars } from 'drei'
 import { useSpring, a } from 'react-spring/three'
 import './style.css'
+
+extend({ OrbitControls })
+
+const Controls = () => {
+  const orbitRef = useRef()
+  const { camera, gl } = useThree()
+
+  useFrame(() => {
+    orbitRef.current.update()
+  })
+
+  return (
+    <orbitControls autoRotate /* maxPolarAngle={Math.PI / 3} minPolarAngle={Math.PI / 3} */ args={[camera, gl.domElement]} ref={orbitRef} />
+  )
+}
 
 const Box = () => {
   const meshRef = useRef()
@@ -12,9 +28,14 @@ const Box = () => {
     scale: hover ? [1.5, 1.5, 1.5] : [1, 1, 1],
     color: active ? "grey" : "hotpink"
   })
-  useFrame(() => {
-    meshRef.current.rotation.y += 0.01
-  })
+  // useFrame(() => {
+  //   meshRef.current.rotation.y += 0.01
+  //   meshRef.current.rotation.x += 0.01
+  // })
+
+  setTimeout(() => {
+    setActive(!active)
+  }, 750)
 
   return (
     <a.mesh 
@@ -33,7 +54,8 @@ const Box = () => {
 export default function Home() {
   return (
     <Canvas>
-      <OrbitControls />
+      {/* <OrbitControls /> */}
+      <Controls />
       <Stars />
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 15, 10]} angle={0.3} />
