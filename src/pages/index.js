@@ -1,104 +1,42 @@
 import React, { useState, useRef, useEffect, Suspense } from "react"
 import * as THREE from 'three'
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { Canvas, extend, useFrame, useThree } from 'react-three-fiber'
-import { useGLTF, OrbitControls, Stars, draco } from 'drei'
+import { Canvas, extend, useFrame, useThree, useLoader } from 'react-three-fiber'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { useGLTF, OrbitControls, Stars, Sky, draco } from 'drei'
 import { useSpring, a } from 'react-spring/three'
 import './style.css'
+import { Geometry } from "three"
+
 
 
 const Samurai = () => {
+  const myRef = useRef()
   const gltf = useGLTF('/scene.gltf', true)
-  return <primitive object={gltf.scene} dispose={null} />
+  console.log(gltf)
+  useFrame(() => myRef.current.rotation.y += 0.01 )
+  return (
+    <mesh position={[0, -100, -300]} ref={myRef} castShadow receiveShadow>
+      <primitive object={gltf.scene} dispose={null} castShadow receiveShadow />
+    </mesh>
+  )
 }
 
-// extend({ OrbitControls })
-
-// const Samurai = () => {
-//   const [model, setModel] = useState()
-
-//   useEffect(() => {
-//     new GLTFLoader().load('/scene.gltf', setModel)
-//   })
-
-//   return model ? <primitive object={model.scene} position={[0, -30, -300]} /> : null
-// }
-
-// const Controls = () => {
-//   const orbitRef = useRef()
-//   const { camera, gl } = useThree()
-
-//   useFrame(() => {
-//     orbitRef.current.update()
-//   })
-
+// function Samurai() {
+//   const { nodes, materials } = useLoader(GLTFLoader, '/scene.gltf', draco())
 //   return (
-//     <orbitControls 
-//       autoRotate 
-//       /* maxPolarAngle={Math.PI / 3} 
-//       minPolarAngle={Math.PI / 3} */ 
-//       args={[camera, gl.domElement]} 
-//       ref={orbitRef} 
-//     />
+//     <group position={[0, -7, 0]} rotation={[-Math.PI / 2, 0, 0]} dispose={null}>
+//       <mesh material={materials} geometry={nodes.mesh_2.geometry} castShadow receiveShadow />
+//     </group>
 //   )
 // }
 
 
-const Plane = () => (
-  <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
-      <planeBufferGeometry attach="geometry" args={[100, 100]} />
-      <a.meshPhysicalMaterial attach="material" color="white" />
-  </mesh>
-)
+{/* <mesh material={materials['Scene_-_Root']} geometry={nodes.mesh_0.geometry} castShadow receiveShadow /> */}
 
-
-
-
-
-const Box = () => {
-  const meshRef = useRef()
-  const [hover, setHover] = useState(false)
-  const [active, setActive] = useState(false)
-  const props = useSpring({
-    scale: hover ? [1.5, 1.5, 1.5] : [1, 1, 1],
-    color: active ? "grey" : "hotpink"
-  })
-  // useFrame(() => {
-  //   meshRef.current.rotation.y += 0.01
-  //   meshRef.current.rotation.x += 0.01
-  // })
-
-  setTimeout(() => {
-    setActive(!active)
-  }, 750)
-
-  return (
-    <a.mesh 
-      ref={meshRef}
-      onPointerOver={() => setHover(true)} 
-      onPointerOut={() => setHover(false)}
-      onClick={() => setActive(!active)}
-      scale={props.scale}
-      castShadow
-    >
-      {/* <ambientLight intensity={0.5} />
-      <spotLight position={[0, 5, 10]} penumbra={1} castShadow /> */}
-      <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
-      {/* <Samurai /> */}
-      <a.meshPhysicalMaterial attach="material" color={props.color} />
-    </a.mesh>
-  )
-}
 
 export default function Home() {
   return (
     <> 
-      <div style={{display:'flex', justifyContent:'space-between', position: 'absolute', top: 0, left: 0}}>
-        <button style={{border:'none', margin: 20, background: 'none', fontSize: 39, height: 10}} onClick={() => console.log('testing...')}>PROJECTS</button>
-        <button style={{border:'none', margin: 20, background: 'none', fontSize: 39, height: 10}} onClick={() => console.log('testing...')}>CONTACT</button>
-      </div>
-
       <Canvas 
         camera={{ position: [0, 0, 5] }} 
         onCreated={({ gl }) => { 
@@ -106,22 +44,12 @@ export default function Home() {
           gl.shadowMap.type = THREE.PCFSoftShadowMap
         }}
       >
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={1.5} castShadow/>
         <spotLight position={[0, 5, 10]} penumbra={1} castShadow />
-        <OrbitControls />     
-        {/* <Controls /> */}
+        <OrbitControls target={[0, 0, -300]}/>     
         <Suspense fallback={null}>
-          <mesh position={[0, -30, -300]}>
             <Samurai />
-          </mesh>
         </Suspense>
-
-        {/* <Samurai /> */}
-        {/* <Box /> */}
-        {/* <fog attach="fog" args={["white", 15, 20]} /> */}
-           
-        {/* <Stars />        */}
-        {/* <Plane /> */}
     </Canvas>
   </>
   )
@@ -133,3 +61,9 @@ export default function Home() {
 // add music (Howler?)
 // custom cursor
 // add project pages
+
+
+{/* <div style={{display:'flex', justifyContent:'space-between', position: 'absolute', top: 0, left: 0}}>
+<button style={{border:'none', margin: 20, background: 'none', fontSize: 39, height: 10}} onClick={() => console.log('testing...')}>PROJECTS</button>
+<button style={{border:'none', margin: 20, background: 'none', fontSize: 39, height: 10}} onClick={() => console.log('testing...')}>CONTACT</button>
+</div> */}
