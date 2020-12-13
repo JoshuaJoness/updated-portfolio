@@ -24,6 +24,8 @@ button:focus {
 .links {
     font-family: 'Knewave', cursive;
     font-size: 50px;
+    border: none;
+    background: transparent;
 }
 
 a {

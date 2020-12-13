@@ -1,20 +1,17 @@
-import React, { useState, useRef, useEffect, Suspense } from "react"
+import React, { useState, useRef, useEffect, Suspense, useCallback } from "react"
 import { Link } from "gatsby"
 import * as THREE from 'three'
 import { Canvas, extend, useFrame, useThree, useLoader } from 'react-three-fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { useGLTF, OrbitControls, Stars, Sky, draco, Plane} from 'drei'
-import { useSpring, useTransition, a, config } from 'react-spring/three'
+import { useSpring, a, config } from 'react-spring/three'
+import { animated, useTransition } from 'react-spring'
 import './style.css'
-import { Geometry } from "three"
 
 import CalorieCam from './calorieCam'
 import ZenChat from './zenChat'
 import About from './about'
 
-const quotes = ["1", "2", "3"]
-  // todo change cursor on hover
-  // todo set Suspense loader
 
 const Samurai = () => {
   const myRef = useRef()
@@ -28,7 +25,6 @@ const Samurai = () => {
       if ( node.isMesh ) { node.castShadow = true; }
     } );
   }
-
 
   const props = useSpring({
     scale: hovered ? [1.5,1.5,1.5] : [1,1,1],
@@ -57,71 +53,137 @@ const Samurai = () => {
   ) : null
 }
 
-export default function Home() {
-  const [initialURL, setInitialURL] = useState(null)
-
-  useEffect(() => {
-    setInitialURL(window.location.href)
-  }, [])
-
-  return (
-    <div onScroll={(e) => console.log(window.location.href, initialURL)}>
-      <div style={{ display:'flex', justifyContent:'space-between', margin: '20px 45px' }}>
-        <Link to="#projects" className="links">PROJECTS</Link>
-        <Link to="#projects" className="links">ABOUT</Link>   
-      </div> 
-      <Canvas
-        style={{ height:'100vh' }}
-        camera={{ position: [0, 0, 5], /*fov:75*/ }} 
-        // onCreated={({ gl }) => { 
-        //   gl.shadowMap.enabled = true
-        //   gl.shadowMap.type = THREE.PCFSoftShadowMap
-        // }}
-        shadowMap
-      >
-        <ambientLight intensity={1.5}/>
-        <directionalLight
-          castShadow
-          position={[0, -10, -300]}
-          intensity={1.5}
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
-          // shadow-camera-far={50}
-          shadow-camera-left={-10}
-          shadow-camera-right={10}
-          shadow-camera-top={10}
-          shadow-camera-bottom={-10}
-        />
-        {/* <spotLight position={[0, 0, 10]} penumbra={1} castShadow /> */}
-
-        {/* <OrbitControls target={[0, 0, -300]}/>      */}
-        <Suspense fallback={null}>
-            <Samurai />
-        </Suspense>
-{/* 
-        <Plane
-          receiveShadow
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, -100, 0]}
-          args={[1000, 1000]}
+const pages = [
+  ({ style }) => (
+    <animated.div style={{ ...style }}>
+        <Canvas
+          style={{ height:'100vh' }}
+          camera={{ position: [0, 0, 5], /*fov:75*/ }} 
         >
-        <meshStandardMaterial attach="material" color="white" />
-      </Plane> */}
-    </Canvas>
+          <ambientLight intensity={1.5}/>
+          <directionalLight
+            castShadow
+            position={[0, -10, -300]}
+            intensity={1.5}
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
+            // shadow-camera-far={50}
+            shadow-camera-left={-10}
+            shadow-camera-right={10}
+            shadow-camera-top={10}
+            shadow-camera-bottom={-10}
+          />
+          <Suspense fallback={null}>
+              <Samurai />
+          </Suspense>
+      </Canvas>
+      <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
+        <div id="projects" style={{ height: '100vh', background:'#525252' }}>
+          <CalorieCam />
+          <ZenChat />
+          <About />
+        </div>
+    </animated.div>
+  ),
+  ({ style }) => (
+    <animated.div style={{ ...style }}>
+        <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
+        <div id="projects" style={{ height: '100vh', background:'#525252' }}>
+          <CalorieCam />
+          <ZenChat /> 
+        </div>
+    </animated.div>
+  ),
+  ({ style }) => (
+    <animated.div style={{ ...style, background: 'lightgreen' }}>
+      <About />
+    </animated.div>
+  ),
+]
 
 
-    <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
-      <div id="projects" style={{ height: '100vh', background:'#525252' }}>
-        <CalorieCam />
-        <ZenChat />
-        <About />
-      </div>
+const Home = () => {
+  const [index, set] = useState(0)
+  const onClick = useCallback(() => set(state => (state + 1) % 3), [])
+  const transitions = useTransition(index, p => p, {
+    from: { opacity: 0, transform: 'translate3d(100%,0,0)' },
+    enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
+    leave: { opacity: 0, transform: 'translate3d(-50%,0,0)' },
+  })
+  return (
+    <div className="simple-trans-main" >
+      <div style={{ display:'flex', justifyContent:'space-between', margin: '20px 45px' }}>
+        <button onClick={onClick} className="links">PROJECTS</button>
+        <button onClick={onClick} className="links">ABOUT</button> 
+      </div> 
+      {transitions.map(({ item, props, key }) => {
+        const Page = pages[item]
+        return <Page key={key} style={props} />
+      })}
     </div>
   )
+
+  // return (
+  //   <div>
+  //     <div style={{ display:'flex', justifyContent:'space-between', margin: '20px 45px' }}>
+  //       <Link to="#projects" className="links">PROJECTS</Link>
+  //       <Link to="#projects" className="links">ABOUT</Link> 
+  //     </div> 
+
+  //     <Canvas
+  //       style={{ height:'100vh' }}
+  //       camera={{ position: [0, 0, 5], /*fov:75*/ }} 
+  //       onCreated={({ gl }) => { 
+  //         gl.shadowMap.enabled = true
+  //         gl.shadowMap.type = THREE.PCFSoftShadowMap
+  //       }}
+  //       // shadowMap
+  //     >
+  //       <ambientLight intensity={1.5}/>
+  //       <directionalLight
+  //         castShadow
+  //         position={[0, -10, -300]}
+  //         intensity={1.5}
+  //         shadow-mapSize-width={1024}
+  //         shadow-mapSize-height={1024}
+  //         // shadow-camera-far={50}
+  //         shadow-camera-left={-10}
+  //         shadow-camera-right={10}
+  //         shadow-camera-top={10}
+  //         shadow-camera-bottom={-10}
+  //       />
+  //       {/* <spotLight position={[0, 0, 10]} penumbra={1} castShadow /> */}
+  //       {/* <OrbitControls target={[0, 0, -300]}/>      */}
+  //       <Suspense fallback={null}>
+  //           <Samurai />
+  //       </Suspense>
+  //       {/* 
+  //       <Plane
+  //         receiveShadow
+  //         rotation={[-Math.PI / 2, 0, 0]}
+  //         position={[0, -100, 0]}
+  //         args={[1000, 1000]}
+  //       >
+  //       <meshStandardMaterial attach="material" color="white" />
+  //     </Plane> */}
+  //   </Canvas>
+
+  //   <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
+  //     <div id="projects" style={{ height: '100vh', background:'#525252' }}>
+  //       <CalorieCam />
+  //       <ZenChat />
+  //       <About />
+  //     </div>
+
+  //   </div>
+  // )
 }
 
+export default Home
+
 // TODO 
-// import model
+//   // todo change cursor on hover
+  // todo set Suspense loader
 // add fonts (Typographpy)
 // add music (Howler?)
 // custom cursor
@@ -144,4 +206,12 @@ export default function Home() {
 // }
 
 
-{/* <mesh material={materials['Scene_-_Root']} geometry={nodes.mesh_0.geometry} castShadow receiveShadow /> */}
+/* <mesh material={materials['Scene_-_Root']} geometry={nodes.mesh_0.geometry} castShadow receiveShadow /> */
+
+// const test1Ref = useRef()
+// return(<div ref={test1Ref} style={{ background:'#eee', height: '100vh' }}>TEST 1</div>
+// )}
+// const test2 = () => {
+// const test2Ref=useRef()
+// return(<div ref={test2Ref} style={{ background:'#e9e9', height: '100vh' }}>TEST 2</div>
+// )}
