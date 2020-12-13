@@ -211,7 +211,7 @@ const Home = () => {
       </Canvas>
       {index === 1 ? (
             // <Html portal={parentRef} center style={{ transform: "translate3d(-25%, -45%, 0px)", width: '60vw', }} >
-                <animated.div style={{ position:'absolute', top: '20%', width: '60vw', right: 100}}>
+                <animated.div style={{ position:'absolute', top: '10%', width: '60vw', right: 100}}>
                   <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
                   <div style={{ background:'#525252', borderRadius: 10 }}>
                     <CalorieCam />

@@ -1,0 +1,21 @@
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 60px;
+}
+
+.project-button {
+    background: #B9E4C9;
+    border: 3.5px solid black;
+    border-radius: 10px;
+    font-family: 'Knewave', cursive;
+    font-size: 35px;
+    padding: 5px 30px;
+}
+
+.project-button:hover {
+    background: #000;
+    border: 3.5px solid B9E4C9;
+    color: #B9E4C9;
+    cursor: pointer;
+}
