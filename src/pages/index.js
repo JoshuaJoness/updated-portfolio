@@ -3,28 +3,41 @@ import { Link } from "gatsby"
 import * as THREE from 'three'
 import { Canvas, extend, useFrame, useThree, useLoader } from 'react-three-fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { useGLTF, OrbitControls, Stars, Sky, draco, Plane} from 'drei'
+import { useGLTF, OrbitControls, Stars, Sky, draco, Plane, Html } from 'drei'
 import { useSpring, a, config } from 'react-spring/three'
-import { animated, useTransition } from 'react-spring'
+import { animated, useTransition, useSpring as useSpr } from 'react-spring'
 import './style.css'
 
 import CalorieCam from './calorieCam'
 import ZenChat from './zenChat'
 import About from './about'
 
+// if mounted, set Text in canvas via HTML tag
+// todo loader on Suspence
+// react font awesome
+// gatsby google fonts
+// load to Heroku, if rendering good, then load other 3d models for other pages
+// custom cursor
+// sounds
+// additional transitions/springs for imags/txt
 
-const Samurai = () => {
+const Samurai = ({setMounted}) => {
   const myRef = useRef()
   const [hovered, setHovered] = useState(false)
   const gltf = useGLTF('/scene.gltf', true)
 
+  useEffect(() => {
+    if (myRef.current) {
+      setMounted(true)
+    }
+  }, [myRef])
+
   gltf.scene.castShadow = true;
 
-  if (gltf) {
-    gltf.scene.traverse( function( node ) {
-      if ( node.isMesh ) { node.castShadow = true; }
-    } );
-  }
+  gltf.scene.traverse( function( node ) {
+    if ( node.isMesh ) { node.castShadow = true; }
+  });
+  
 
   const props = useSpring({
     scale: hovered ? [1.5,1.5,1.5] : [1,1,1],
@@ -32,9 +45,7 @@ const Samurai = () => {
   })
 
   useFrame(() => {
-    if (myRef) {
-      myRef.current.rotation.y += 0.005
-    } 
+    myRef.current.rotation.y += 0.005
   })
 
   return gltf ? (
@@ -54,8 +65,11 @@ const Samurai = () => {
 }
 
 const pages = [
-  ({ style }) => (
+  ({ style }) => {
+    const [mounted, setMounted] = useState(false)
+    return (
     <animated.div style={{ ...style }}>
+        
         <Canvas
           style={{ height:'100vh' }}
           camera={{ position: [0, 0, 5], /*fov:75*/ }} 
@@ -73,18 +87,14 @@ const pages = [
             shadow-camera-top={10}
             shadow-camera-bottom={-10}
           />
+          <OrbitControls target={[0, 0, -300]}/> 
           <Suspense fallback={null}>
-              <Samurai />
+              <Samurai setMounted={setMounted} />
           </Suspense>
+          {mounted ? <Html><span style={{ fontSize: 40, marginLeft: 30, marginTop: '50%' }}>TEST</span></Html> : null}
       </Canvas>
-      <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
-        <div id="projects" style={{ height: '100vh', background:'#525252' }}>
-          <CalorieCam />
-          <ZenChat />
-          <About />
-        </div>
     </animated.div>
-  ),
+  )},
   ({ style }) => (
     <animated.div style={{ ...style }}>
         <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
@@ -110,11 +120,16 @@ const Home = () => {
     enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
     leave: { opacity: 0, transform: 'translate3d(-50%,0,0)' },
   })
+  // const myProps = useSpr
+
   return (
-    <div className="simple-trans-main" >
-      <div style={{ display:'flex', justifyContent:'space-between', margin: '20px 45px' }}>
-        <button onClick={onClick} className="links">PROJECTS</button>
-        <button onClick={onClick} className="links">ABOUT</button> 
+    <div className="simple-trans-main" style={{backgroundColor: index === 2 ? '#fff' : '#636363'}}>
+      {/* Temp loader below */}
+      {/* <span style={{fontSize: 35, position: 'absolute', top: '50vh', left: '50vw'}}>Realize deeply that the present moment is all you ever have... -Eckart Tolle</span> */}
+      <div style={{ display:'flex', justifyContent:'space-between', padding: '20px 45px' }}>
+        <button onClick={() => set(0)} className="links">HOME</button>
+        <button onClick={() => set(1)} className="links">PROJECTS</button>
+        <button onClick={() => set(2)} className="links">ABOUT</button>  
       </div> 
       {transitions.map(({ item, props, key }) => {
         const Page = pages[item]
