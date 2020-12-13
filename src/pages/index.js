@@ -64,16 +64,58 @@ const Samurai = ({setMounted}) => {
   ) : null
 }
 
+// const quoteArray = [
+//   <span style={{ fontSize: 25, position: 'absolute', left: 300, width: 400, lineHeight: 1.5 }}>
+//                   In the pursuit of knowledge,
+//                   <br />
+//                   everyday somthing is added.
+//                   <br />
+//                   In the practice of the Tao,
+//                   <br />
+//                   every day something is dropped.
+//                   <br /><br />
+//                   -Tao Te Ching
+//                   </span>,
+//                   <span style={{ fontSize: 25, position: 'absolute', left: 300, width: 400, lineHeight: 1.5 }}>
+//                   Test
+//                   </span>
+// ]
+
 const pages = [
   ({ style }) => {
     const [mounted, setMounted] = useState(false)
+    const [timeToChange, setTimeToChange] = useState(0)
+
+    useEffect(() => {
+      setText()
+    })
+
+    // setTimeout(() => {
+    //   setTimeToChange(timeToChange++)
+    // }, 4000)
+
     return (
     <animated.div style={{ ...style }}>
-        
         <Canvas
           style={{ height:'100vh' }}
           camera={{ position: [0, 0, 5], /*fov:75*/ }} 
         >
+            {mounted ? (
+              <Html>
+                <span style={{ fontSize: 25, position: 'absolute', left: 300, width: 400, lineHeight: 1.5 }}>
+                  In the pursuit of knowledge,
+                  <br />
+                  everyday somthing is added.
+                  <br />
+                  In the practice of the Tao,
+                  <br />
+                  every day something is dropped.
+                  <br /><br />
+                  -Tao Te Ching
+                  </span>
+              </Html>
+              ) : null
+            }
           <ambientLight intensity={1.5}/>
           <directionalLight
             castShadow
@@ -91,7 +133,6 @@ const pages = [
           <Suspense fallback={null}>
               <Samurai setMounted={setMounted} />
           </Suspense>
-          {mounted ? <Html><span style={{ fontSize: 40, marginLeft: 30, marginTop: '50%' }}>TEST</span></Html> : null}
       </Canvas>
     </animated.div>
   )},
