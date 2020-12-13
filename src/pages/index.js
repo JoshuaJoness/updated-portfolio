@@ -12,7 +12,12 @@ import CalorieCam from './calorieCam'
 import ZenChat from './zenChat'
 import About from './about'
 
+// experiment with z-index for navbar on About page
+// pass setIndex to about component, use button there to set indices 
+// implement redux to setIndex
 
+// disable scroll when index === 0
+// use temple pic for about page, use monkey below that
 // on Home click, scroll to top of page window.y ...
 // screenshots of calorieCam
 // if mounted, set Text in canvas via HTML tag
@@ -24,6 +29,7 @@ import About from './about'
 // sounds
 // additional transitions/springs for imags/txt
 // add logos / mention tech I'm using
+// optimize for mobile (display flex should do the trick)
 
 const Samurai = ({setMounted}) => {
   const myRef = useRef()
@@ -123,17 +129,16 @@ const pages = [
         </div>
     </animated.div>
   ),
-  ({ style }) => (
+  ({ style, setIndex }) => (
     <animated.div style={{ ...style }}>
-      <About />
+      <About setIndex={setIndex} />
     </animated.div>
   ),
 ]
 
 
 const Home = () => {
-  const [index, set] = useState(0)
-  const onClick = useCallback(() => set(state => (state + 1) % 3), [])
+  const [index, setIndex] = useState(0)
   const transitions = useTransition(index, p => p, {
     from: { opacity: 0, transform: 'translate3d(100%,0,0)' },
     enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
@@ -146,20 +151,20 @@ const Home = () => {
     if (index === 0) {
       window.scrollTo(0, 0)
     }
-  }, [index, set])
+  }, [index, setIndex])
 
   return (
-    <div className="simple-trans-main" style={{backgroundColor: index === 2 ? '#fff' : index === 1 ? '#525252' : '#636363'}}>
+    <div className="simple-trans-main" style={{backgroundColor: index === 2 ? '#fff' : index === 1 ? '#525252' : 'transparent'}}>
       {/* Temp loader below */}
       {/* <span style={{fontSize: 35, position: 'absolute', top: '50vh', left: '50vw'}}>Realize deeply that the present moment is all you ever have... -Eckart Tolle</span> */}
-      <div style={{ display:'flex', justifyContent:'space-between', padding: '20px 45px' }}>
-        <button onClick={() => set(0)} className="links">HOME</button>
-        <button onClick={() => set(1)} className="links">PROJECTS</button>
-        <button onClick={() => set(2)} className="links">ABOUT</button>  
+      <div style={{ display: index !== 2 ? 'flex' : 'none', justifyContent:'space-between', padding: '20px 45px' }}>
+        <button onClick={() => setIndex(0)} className="links">HOME</button>
+        <button onClick={() => setIndex(1)} className="links">PROJECTS</button>
+        <button onClick={() => setIndex(2)} className="links">ABOUT</button>  
       </div> 
       {transitions.map(({ item, props, key }) => {
         const Page = pages[item]
-        return <Page key={key} style={props} />
+        return <Page key={key} style={props} setIndex={setIndex} />
       })}
     </div>
   )
