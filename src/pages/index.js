@@ -12,6 +12,9 @@ import CalorieCam from './calorieCam'
 import ZenChat from './zenChat'
 import About from './about'
 
+
+// on Home click, scroll to top of page window.y ...
+// screenshots of calorieCam
 // if mounted, set Text in canvas via HTML tag
 // todo loader on Suspence
 // react font awesome
@@ -20,6 +23,7 @@ import About from './about'
 // custom cursor
 // sounds
 // additional transitions/springs for imags/txt
+// add logos / mention tech I'm using
 
 const Samurai = ({setMounted}) => {
   const myRef = useRef()
@@ -64,35 +68,9 @@ const Samurai = ({setMounted}) => {
   ) : null
 }
 
-// const quoteArray = [
-//   <span style={{ fontSize: 25, position: 'absolute', left: 300, width: 400, lineHeight: 1.5 }}>
-//                   In the pursuit of knowledge,
-//                   <br />
-//                   everyday somthing is added.
-//                   <br />
-//                   In the practice of the Tao,
-//                   <br />
-//                   every day something is dropped.
-//                   <br /><br />
-//                   -Tao Te Ching
-//                   </span>,
-//                   <span style={{ fontSize: 25, position: 'absolute', left: 300, width: 400, lineHeight: 1.5 }}>
-//                   Test
-//                   </span>
-// ]
-
 const pages = [
   ({ style }) => {
     const [mounted, setMounted] = useState(false)
-    const [timeToChange, setTimeToChange] = useState(0)
-
-    useEffect(() => {
-      setText()
-    })
-
-    // setTimeout(() => {
-    //   setTimeToChange(timeToChange++)
-    // }, 4000)
 
     return (
     <animated.div style={{ ...style }}>
@@ -101,7 +79,7 @@ const pages = [
           camera={{ position: [0, 0, 5], /*fov:75*/ }} 
         >
             {mounted ? (
-              <Html>
+              <Html prepend>
                 <span style={{ fontSize: 25, position: 'absolute', left: 300, width: 400, lineHeight: 1.5 }}>
                   In the pursuit of knowledge,
                   <br />
@@ -146,7 +124,7 @@ const pages = [
     </animated.div>
   ),
   ({ style }) => (
-    <animated.div style={{ ...style, background: 'lightgreen' }}>
+    <animated.div style={{ ...style }}>
       <About />
     </animated.div>
   ),
@@ -161,10 +139,17 @@ const Home = () => {
     enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
     leave: { opacity: 0, transform: 'translate3d(-50%,0,0)' },
   })
+
   // const myProps = useSpr
 
+  useEffect(() => {
+    if (index === 0) {
+      window.scrollTo(0, 0)
+    }
+  }, [index, set])
+
   return (
-    <div className="simple-trans-main" style={{backgroundColor: index === 2 ? '#fff' : '#636363'}}>
+    <div className="simple-trans-main" style={{backgroundColor: index === 2 ? '#fff' : index === 1 ? '#525252' : '#636363'}}>
       {/* Temp loader below */}
       {/* <span style={{fontSize: 35, position: 'absolute', top: '50vh', left: '50vw'}}>Realize deeply that the present moment is all you ever have... -Eckart Tolle</span> */}
       <div style={{ display:'flex', justifyContent:'space-between', padding: '20px 45px' }}>
