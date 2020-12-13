@@ -14,8 +14,8 @@ import About from './about'
 
 // experiment with z-index for navbar on About page
 // pass setIndex to about component, use button there to set indices 
-// implement redux to setIndex
-
+// implement redux to setIndex -> then each page can have it's own custom nav
+ 
 // disable scroll when index === 0
 // use temple pic for about page, use monkey below that
 // on Home click, scroll to top of page window.y ...
@@ -31,26 +31,33 @@ import About from './about'
 // add logos / mention tech I'm using
 // optimize for mobile (display flex should do the trick)
 
-const Samurai = ({setMounted}) => {
+const Samurai = ({index}) => {
   const myRef = useRef()
   const [hovered, setHovered] = useState(false)
+  const [clicked, setClicked] = useState(false)
   const gltf = useGLTF('/scene.gltf', true)
 
+  
   useEffect(() => {
-    if (myRef.current) {
-      setMounted(true)
+    if (index === 1) {
+      gltf.nodes.mesh_5.quaternion._x = 10
+    } else if (index === 0) {
+      gltf.nodes.mesh_5.quaternion._x = 0
     }
-  }, [myRef])
+  }, [index])
 
   gltf.scene.castShadow = true;
 
   gltf.scene.traverse( function( node ) {
-    if ( node.isMesh ) { node.castShadow = true; }
+    if ( node.isMesh ) { 
+      node.castShadow = true
+      node.receiveShadow = true 
+    }
   });
   
-
   const props = useSpring({
-    scale: hovered ? [1.5,1.5,1.5] : [1,1,1],
+    scale: index === 1 ? [0.75, 0.75, 0.75] : hovered ? [1.5,1.5,1.5] : [1,1,1],
+    position: index === 1 ? [-250, 10, -300] :  [0, -100, -300],
     config: config.stiff
   })
 
@@ -60,7 +67,8 @@ const Samurai = ({setMounted}) => {
 
   return gltf ? (
     <a.mesh 
-      position={[0, -100, -300]} 
+      position={props.position} 
+      // position={[0, -100, -300]} 
       ref={myRef} 
       castShadow
       receiveShadow 
@@ -74,71 +82,80 @@ const Samurai = ({setMounted}) => {
   ) : null
 }
 
-const pages = [
-  ({ style }) => {
-    const [mounted, setMounted] = useState(false)
+// const pages = [
+//   ({ style, index }) => {
+//     const [mounted, setMounted] = useState(false)
 
-    return (
-    <animated.div style={{ ...style }}>
-        <Canvas
-          style={{ height:'100vh' }}
-          camera={{ position: [0, 0, 5], /*fov:75*/ }} 
-        >
-            {mounted ? (
-              <Html prepend>
-                <span style={{ fontSize: 25, position: 'absolute', left: 300, width: 400, lineHeight: 1.5 }}>
-                  In the pursuit of knowledge,
-                  <br />
-                  everyday somthing is added.
-                  <br />
-                  In the practice of the Tao,
-                  <br />
-                  every day something is dropped.
-                  <br /><br />
-                  -Tao Te Ching
-                  </span>
-              </Html>
-              ) : null
-            }
-          <ambientLight intensity={1.5}/>
-          <directionalLight
-            castShadow
-            position={[0, -10, -300]}
-            intensity={1.5}
-            shadow-mapSize-width={1024}
-            shadow-mapSize-height={1024}
-            // shadow-camera-far={50}
-            shadow-camera-left={-10}
-            shadow-camera-right={10}
-            shadow-camera-top={10}
-            shadow-camera-bottom={-10}
-          />
-          <OrbitControls target={[0, 0, -300]}/> 
-          <Suspense fallback={null}>
-              <Samurai setMounted={setMounted} />
-          </Suspense>
-      </Canvas>
-    </animated.div>
-  )},
-  ({ style }) => (
-    <animated.div style={{ ...style }}>
-        <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
-        <div id="projects" style={{ height: '100vh', background:'#525252' }}>
-          <CalorieCam />
-          <ZenChat /> 
-        </div>
-    </animated.div>
-  ),
-  ({ style, setIndex }) => (
-    <animated.div style={{ ...style }}>
-      <About setIndex={setIndex} />
-    </animated.div>
-  ),
-]
+//     return (
+//     <animated.div style={{ ...style }}>
+//         <Canvas
+//           style={{ height:'100vh' }}
+//           camera={{ position: [0, 0, 5], /*fov:75*/ }} 
+//         >
+//             {index === 0 && mounted ? (
+//               <Html prepend>
+//                 <span style={{ fontSize: 25, position: 'absolute', left: 300, width: 400, lineHeight: 1.5 }}>
+//                   In the pursuit of knowledge,
+//                   <br />
+//                   everyday somthing is added.
+//                   <br />
+//                   In the practice of the Tao,
+//                   <br />
+//                   every day something is dropped.
+//                   <br /><br />
+//                   -Tao Te Ching
+//                   </span>
+//               </Html>
+//               ) : index === 1 ? (
+//                 <animated.div style={{ ...style }}>
+//                 <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
+//                 <div id="projects" style={{ height: '100vh', background:'#525252' }}>
+//                   <CalorieCam />
+//                   <ZenChat /> 
+//                 </div>
+//             </animated.div>
+//               ) : null
+//             }
+//           <ambientLight intensity={1.5}/>
+//           <directionalLight
+//             castShadow
+//             position={[0, -10, -300]}
+//             intensity={1.5}
+//             shadow-mapSize-width={1024}
+//             shadow-mapSize-height={1024}
+//             // shadow-camera-far={50}
+//             shadow-camera-left={-10}
+//             shadow-camera-right={10}
+//             shadow-camera-top={10}
+//             shadow-camera-bottom={-10}
+//           />
+//           <OrbitControls target={[0, 0, -300]}/> 
+//           <Suspense fallback={null}>
+//               <Samurai setMounted={setMounted} />
+//           </Suspense>
+//       </Canvas>
+//     </animated.div>
+//   )},
+//   ({ style }) => (
+//     <animated.div style={{ ...style }}>
+//         <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
+//         <div id="projects" style={{ height: '100vh', background:'#525252' }}>
+//           <CalorieCam />
+//           <ZenChat /> 
+//         </div>
+//     </animated.div>
+//   ),
+//   ({ style, setIndex }) => (
+//     <animated.div style={{ ...style }}>
+//       <About setIndex={setIndex} />
+//     </animated.div>
+//   ),
+// ]
 
 
 const Home = () => {
   const [index, setIndex] = useState(0)
+  const parentRef = useRef()
   const transitions = useTransition(index, p => p, {
     from: { opacity: 0, transform: 'translate3d(100%,0,0)' },
     enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
@@ -154,110 +171,58 @@ const Home = () => {
   }, [index, setIndex])
 
   return (
-    <div className="simple-trans-main" style={{backgroundColor: index === 2 ? '#fff' : index === 1 ? '#525252' : 'transparent'}}>
-      {/* Temp loader below */}
-      {/* <span style={{fontSize: 35, position: 'absolute', top: '50vh', left: '50vw'}}>Realize deeply that the present moment is all you ever have... -Eckart Tolle</span> */}
+    <div >
       <div style={{ display: index !== 2 ? 'flex' : 'none', justifyContent:'space-between', padding: '20px 45px' }}>
         <button onClick={() => setIndex(0)} className="links">HOME</button>
         <button onClick={() => setIndex(1)} className="links">PROJECTS</button>
         <button onClick={() => setIndex(2)} className="links">ABOUT</button>  
       </div> 
-      {transitions.map(({ item, props, key }) => {
-        const Page = pages[item]
-        return <Page key={key} style={props} setIndex={setIndex} />
-      })}
-    </div>
+
+
+      <Canvas
+        ref={parentRef}
+        style={{ height:'100vh' }}
+        camera={{ position: [0, 0, 5], /*fov:75*/ }} 
+        onCreated={({ gl }) => { 
+          gl.shadowMap.enabled = true
+          gl.shadowMap.type = THREE.PCFSoftShadowMap
+        }}
+        // shadowMap
+      >
+        <ambientLight intensity={1.5}/>
+        <directionalLight
+          castShadow
+          position={[0, -10, -300]}
+          intensity={1.5}
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+          // shadow-camera-far={50}
+          shadow-camera-left={-10}
+          shadow-camera-right={10}
+          shadow-camera-top={10}
+          shadow-camera-bottom={-10}
+        />
+        {/* <spotLight position={[0, 0, 10]} penumbra={1} castShadow /> */}
+        {/* {index === 0 ? <OrbitControls target={[0, 0, -300]}/> : null} */}
+        <Suspense fallback={null}>
+            <Samurai index={index} />
+        </Suspense>
+
+      </Canvas>
+      {index === 1 ? (
+            // <Html portal={parentRef} center style={{ transform: "translate3d(-25%, -45%, 0px)", width: '60vw', }} >
+                <animated.div style={{ position:'absolute', top: '20%', width: '60vw', right: 100}}>
+                  <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
+                  <div style={{ background:'#525252', borderRadius: 10 }}>
+                    <CalorieCam />
+                    {/* <ZenChat />  */}
+                  </div>
+              </animated.div>
+          
+        ) : null}
+        </div>
+ 
   )
-
-  // return (
-  //   <div>
-  //     <div style={{ display:'flex', justifyContent:'space-between', margin: '20px 45px' }}>
-  //       <Link to="#projects" className="links">PROJECTS</Link>
-  //       <Link to="#projects" className="links">ABOUT</Link> 
-  //     </div> 
-
-  //     <Canvas
-  //       style={{ height:'100vh' }}
-  //       camera={{ position: [0, 0, 5], /*fov:75*/ }} 
-  //       onCreated={({ gl }) => { 
-  //         gl.shadowMap.enabled = true
-  //         gl.shadowMap.type = THREE.PCFSoftShadowMap
-  //       }}
-  //       // shadowMap
-  //     >
-  //       <ambientLight intensity={1.5}/>
-  //       <directionalLight
-  //         castShadow
-  //         position={[0, -10, -300]}
-  //         intensity={1.5}
-  //         shadow-mapSize-width={1024}
-  //         shadow-mapSize-height={1024}
-  //         // shadow-camera-far={50}
-  //         shadow-camera-left={-10}
-  //         shadow-camera-right={10}
-  //         shadow-camera-top={10}
-  //         shadow-camera-bottom={-10}
-  //       />
-  //       {/* <spotLight position={[0, 0, 10]} penumbra={1} castShadow /> */}
-  //       {/* <OrbitControls target={[0, 0, -300]}/>      */}
-  //       <Suspense fallback={null}>
-  //           <Samurai />
-  //       </Suspense>
-  //       {/* 
-  //       <Plane
-  //         receiveShadow
-  //         rotation={[-Math.PI / 2, 0, 0]}
-  //         position={[0, -100, 0]}
-  //         args={[1000, 1000]}
-  //       >
-  //       <meshStandardMaterial attach="material" color="white" />
-  //     </Plane> */}
-  //   </Canvas>
-
-  //   <h1 style={{ fontFamily: 'Knewave, cursive', fontSize:'7rem', textAlign: 'center' }}>Some of my work...</h1>
-  //     <div id="projects" style={{ height: '100vh', background:'#525252' }}>
-  //       <CalorieCam />
-  //       <ZenChat />
-  //       <About />
-  //     </div>
-
-  //   </div>
-  // )
 }
 
 export default Home
-
-// TODO 
-//   // todo change cursor on hover
-  // todo set Suspense loader
-// add fonts (Typographpy)
-// add music (Howler?)
-// custom cursor
-// add project pages
-
-
-{/* <div style={{display:'flex', justifyContent:'space-between', position: 'absolute', top: 0, left: 0}}>
-<button style={{border:'none', margin: 20, background: 'none', fontSize: 39, height: 10}} onClick={() => console.log('testing...')}>PROJECTS</button>
-<button style={{border:'none', margin: 20, background: 'none', fontSize: 39, height: 10}} onClick={() => console.log('testing...')}>CONTACT</button>
-</div> */}
-
-
-// function Samurai() {
-//   const { nodes, materials } = useLoader(GLTFLoader, '/scene.gltf', draco())
-//   return (
-//     <group position={[0, -7, 0]} rotation={[-Math.PI / 2, 0, 0]} dispose={null}>
-//       <mesh material={materials} geometry={nodes.mesh_2.geometry} castShadow receiveShadow />
-//     </group>
-//   )
-// }
-
-
-/* <mesh material={materials['Scene_-_Root']} geometry={nodes.mesh_0.geometry} castShadow receiveShadow /> */
-
-// const test1Ref = useRef()
-// return(<div ref={test1Ref} style={{ background:'#eee', height: '100vh' }}>TEST 1</div>
-// )}
-// const test2 = () => {
-// const test2Ref=useRef()
-// return(<div ref={test2Ref} style={{ background:'#e9e9', height: '100vh' }}>TEST 2</div>
-// )}

@@ -7,11 +7,12 @@ const About = ({ setIndex }) => {
         <div /*style={{ backgroundColor:'#fff', height: '100vh', paddingTop: 50 }}*/>
             <div className="about-container">
             
-        <button>HOME</button>
+        <button onClick={() => setIndex(0)}>HOME</button>
             </div>
             {/* <h1 style={{ fontSize: 50, marginTop: 30, textAlign: 'center' }}>About Me <Emoji text=":grinning_face:" /></h1>s */}
             <h1 style={{ fontFamily:"'Knewave', cursive", color:'#000', fontSize: 30, textAlign: 'center' }}>
                 Hi there, I'm Joshua 
+            
                 <Emoji text=":waving_hand:" />
             </h1>
             <p style={{ marginTop:25 }}>
